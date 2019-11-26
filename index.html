@@ -1,0 +1,158 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">
+		<style>
+			section.section {
+				border: 1px solid black;
+			}
+			.user-grid .user-square {
+				border: 1px solid rgba(0,0,0,.28);
+			}
+			.user-grid .username {
+				font-size: 1.25em;
+			}
+			.user-grid img {
+				margin: .5em 0 0 0;
+			}
+			.user-type {
+				margin: .85em 0 .85em 0;
+			}
+			.user-type,
+			.user-actions {
+				display: flex;
+				justify-content: space-between;
+				padding: .25em 3em .25em 3em;
+			}
+			.user-actions {
+				border-top: 1px solid black;
+			}
+			.user-type i,
+			.user-actions i {
+				cursor: pointer;
+				font-size: 1.69em;
+			}
+			.user-type span:first-child {
+				font-size: 1.25em;
+			}
+			.user-type .buddy-status {
+				align-self: center;
+			}
+			.user-type i.add-buddy,
+			.user-actions i.im-user {
+				color: #3477db;
+			}
+			.user-type i.is-buddy {
+				color: #2e8b57;
+			}
+			.user-actions i.block-user {
+				color: #f20000;
+			}
+			.user-actions i.msg-user {
+				color: #f1d592;
+			}
+			.user-grid {
+				display: grid;
+				grid-template-columns: repeat(4, 250px);
+				row-gap: 3em;
+				column-gap: 3em;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<header class="header">
+				buddyGrid demoboi
+			</header>
+			<section class="section">
+				<div class="buddy-view container">
+					<div class='user-grid'>
+						<user-square 
+						  v-for="(user, index) in users"
+						  v-bind:key="user.id"
+						  v-bind:index="index"
+						  v-bind:user-name="user.username"
+						  v-bind:photo-url="user.photo_url"
+						  >
+					    </user-square>
+					</div>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Faker/3.1.0/faker.min.js"></script>
+<script>
+    Vue.component('user-square', {
+	  props: ['userName', 'photoUrl'],
+      template: `
+      <div class="user-square">
+          <span class="username">
+            {{userName}}
+          </span>
+          <img src="http://lorempixel.com/300/300" class="image" alt="user img">
+          <div class="user-type">
+            <span>Online Cupid</span>
+            <span class="buddy-status">
+              <i class="fas fa-user-plus add-buddy" aria-hidden="true"></i>
+            </span>
+          </div>
+          <div class="user-actions">
+            <span class='im-user'>
+              <i class="fas fa-paper-plane im-user" aria-hidden="true"></i>
+            </span>
+            <span class='msg-user'>
+              <i class="fas fa-envelope msg-user" aria-hidden="true"></i>
+            </span>
+            <span class='block-user'>
+              <i class="fas fa-user-slash block-user" aria-hidden="true"></i>
+            </span>
+          </div>
+      </div>
+      `
+  })
+  
+	let vm = new Vue({
+		el: '.buddy-view',
+		data: {
+			users: false,
+		},
+		methods: {
+			fetchUserImages() {
+				return axios.get('lorempixel.com/300/300').then(function(response){
+					return response.data;
+				}).catch(function(error){
+					console.error("couldnt hit the api!")
+				})
+			},
+			
+			generateUserData() {
+			  let usrData = [];
+			  let imageData = [];
+			  
+			  for (i=0; i < 30; i++) {
+				usrData[i] = {
+					id: `${i}`,
+					username: faker.internet.userName(),
+					user_type: 'Basic Member', 
+					photo_url: undefined
+				}
+			  }
+			  
+			  this.users = usrData;
+			  
+			  this.fetchUserImages().then(function(data){
+				data.forEach(function(entry, index) {
+					vm.users[index].photo_url = entry.download_url;
+				})
+				console.log(imageData);
+			  })
+			}
+		},
+		mounted() {
+			this.generateUserData();
+		}
+  })
+</script>
